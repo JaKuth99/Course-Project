@@ -1,4 +1,4 @@
-package edu.gmu.cs477.courseproject;
+package edu.gmu.cs477.fall2020.course_project;
 
 
 import android.content.ContentValues;
