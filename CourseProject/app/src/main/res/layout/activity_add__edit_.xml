@@ -10,13 +10,13 @@
     tools:context=".Add_Edit_Activity">
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/txtTitleAdd"
         android:layout_width="match_parent"
         android:layout_height="57dp"
         android:background="#F8D057"
         android:fontFamily="sans-serif-medium"
         android:text="Add New"
-        android:textAlignment="center"
+        android:textAlignment="viewStart"
         android:textSize="30sp"
         android:textStyle="bold" />
 
@@ -53,7 +53,7 @@
 
                     <EditText
                         android:id="@+id/etInputName"
-                        android:layout_width="223dp"
+                        android:layout_width="221dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:ems="10"
@@ -166,8 +166,7 @@
 
             <RadioGroup
                 android:layout_width="match_parent"
-                android:layout_height="139dp"
-                android:onClick="onRadioButtonClicked">
+                android:layout_height="139dp">
 
                 <RadioButton
                     android:id="@+id/rbBreakfast"
@@ -224,15 +223,16 @@
         </LinearLayout>
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/btnCreateSave"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="#F8D057"
+            android:onClick="onSave"
             android:text="Create"
             android:textStyle="bold" />
 
         <Button
-            android:id="@+id/button3"
+            android:id="@+id/btnCancel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:onClick="onCancel"
