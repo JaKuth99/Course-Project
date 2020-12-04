@@ -1,13 +1,18 @@
 package edu.gmu.cs477.fall2020.course_project;
 
+package edu.gmu.cs477.courseproject;
+
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +23,8 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import java.util.Calendar;
+import java.util.List;
+
 import android.app.AlertDialog;
 
 
@@ -35,6 +42,11 @@ public class MainActivity extends AppCompatActivity {
     public final static int ADD = 0;
     public final static int EDIT = 1;
 
+    public final static int BREAKFAST = 1;
+    public final static int LUNCH = 2;
+    public final static int DINNER = 3;
+    public final static int SNACK = 4;
+
     public final static String SELECTED_DAY = "edu.gmu.cs477.mainActivity.SELECTED_DAY";
     public final static String SELECTED_MONTH = "edu.gmu.cs477.mainActivity.SELECTED_MONTH";
     public final static String SELECTED_YEAR = "edu.gmu.cs477.mainActivity.SELECTED_YEAR";
@@ -46,8 +58,6 @@ public class MainActivity extends AppCompatActivity {
     DatabaseOpenHelper dbHelper = null;
     Cursor c;
 
-
-
     final static String TABLE_FOOD = "tblFoods";
     final static String F_NAME=  "name";
     final static String _ID = "_id";
@@ -57,31 +67,16 @@ public class MainActivity extends AppCompatActivity {
     //put the photo here
     final static String[] tblFoodColumns = {_ID, F_NAME, F_BRAND, F_CAL, F_SERVING};
 
-    final static String TABLE_LOGGED = "tblLoggedFood";
-    final static String LOGGED_ID = "_loggedID";
-    final static String F_ID =  "FoodID";
-    final static String M_ID= "_id";
-    final static String YEAR = "brand";
-    final static String DAYOFMONTH= "calories";
-    final static String NOTES = "fat_calories";
-    final static String FOODTYPE = "serving";
+    final static String TABLE_LOGGED = "tblLoggedFoods";
+    final static String LOGGED_ID = "loggedID";
+    final static String FOOD_ID =  "foodID";
+    final static String MONTH_ID= "monthID";
+    final static String YEAR = "year";
+    final static String DAYOFMONTH= "dayOfMonth";
+    final static String NOTES = "notes";
+    final static String MEALTYPE = "mealType";
     //put the photo here
-    final static String[] tblLoggedColumns = {LOGGED_ID, F_ID, M_ID, YEAR, DAYOFMONTH, NOTES, FOODTYPE};
-
-    final static String TABLE_MONTH= "tblLoggedFood";
-    final static String MONTH_ID = "_monthID";
-    final static String MONTH_NAME =  "name";
-    //put the photo here
-    final static String[] tblMonthColumns = {MONTH_ID, MONTH_NAME};
-
-
-    final static String TABLE_MEALTYPE ="tblMealType";
-    final static String TYPE_ID = "_typeID";
-    final static String TYPE_NAME =  "name";
-    //put the photo here
-    final static String[] tblTypeColumns = {TYPE_ID, TYPE_NAME};
-
-
+    final static String[] tblLoggedColumns = {LOGGED_ID, FOOD_ID, MONTH_ID, YEAR, DAYOFMONTH, NOTES, MEALTYPE};
 
 
     @Override
@@ -110,6 +105,9 @@ public class MainActivity extends AppCompatActivity {
                 curMonth = month + 1;
                 curDay = dayOfMonth;
                 txtDisplayDate.setText("Food Logged for " + curMonth + "/" + curDay + "/" + curYear);
+
+                LoadDB task = new LoadDB();
+                task.execute();
             }
         });
 
@@ -124,25 +122,27 @@ public class MainActivity extends AppCompatActivity {
 
                 //get cursor for position
                 Cursor q = (Cursor) parent.getAdapter().getItem(position);
-                /*
-                //extract data from cursor
-                String exe_name = q.getString(1);
-                int exe_reps = q.getInt(2);
-                int exe_sets = q.getInt(3);
-                String exe_weights = q.getString(4);
-                String exe_notes = q.getString(5);
+                int fId = q.getInt(q.getColumnIndex(_ID));
+                String fName = q.getString(q.getColumnIndex(F_NAME));
+                String fBrand = q.getString(q.getColumnIndex(F_BRAND));
+                String fCal = q.getString(q.getColumnIndex(F_CAL));
+                String fServing = q.getString(q.getColumnIndex(F_SERVING));
+                String mNotes = q.getString(q.getColumnIndex(NOTES));
+                int mMealType = q.getInt(q.getColumnIndex(MEALTYPE));
 
-                //build intent with data to display in edit screen
-                Intent intent = new Intent(getApplicationContext(), AddEditWorkouts.class);
-                intent.putExtra(EXE_NAME, exe_name);
-                intent.putExtra(EXE_REPS, exe_reps);
-                intent.putExtra(EXE_SETS, exe_sets);
-                intent.putExtra(EXE_WEIGHTS, exe_weights);
-                intent.putExtra(EXE_NOTES, exe_notes);
-                intent.putExtra(REQUEST_TYPE, AddEditWorkouts.EDIT);
+                Intent intent = new Intent(getApplicationContext(), Add_Edit_Activity.class);
+                intent.putExtra(_ID,fId);
+                intent.putExtra(F_NAME, fName);
+                intent.putExtra(F_BRAND, fBrand);
+                intent.putExtra(F_CAL, fCal);
+                intent.putExtra(F_SERVING, fServing);
+                intent.putExtra(NOTES, mNotes);
+                intent.putExtra(MEALTYPE, mMealType);
+                intent.putExtra(REQUEST_TYPE, MainActivity.EDIT);
+                intent.putExtra(SELECTED_DAY, curDay);
+                intent.putExtra(SELECTED_YEAR, curYear);
+                intent.putExtra(SELECTED_MONTH, curMonth);
                 startActivityForResult(intent, ACTIVITY_RESULT);
-
-                 */
 
 
             };
@@ -153,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
     public void onAddNew(View v){//go to new food page
         LayoutInflater layoutInflater = LayoutInflater.from(MainActivity.this);
         View promptView = layoutInflater.inflate(R.layout.prompt_on_add, null);
-        AlertDialog.Builder alertdialog =new AlertDialog.Builder(MainActivity.this);
+        AlertDialog.Builder alertdialog =new AlertDialog.Builder(MainActivity.this, R.style.AlertDialog);
         alertdialog.setView(promptView);
         alertdialog.setCancelable(true)
                 .setNegativeButton("Create New Entry", new DialogInterface.OnClickListener() {
@@ -164,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
                         intent.putExtra(SELECTED_DAY, curDay);
                         intent.putExtra(SELECTED_YEAR, curYear);
                         intent.putExtra(SELECTED_MONTH, curMonth);
-                        startActivity(intent);
+                        startActivityForResult(intent, ACTIVITY_RESULT);
                     }
                 })
                 .setPositiveButton("Search", new DialogInterface.OnClickListener() {
@@ -175,10 +175,6 @@ public class MainActivity extends AppCompatActivity {
                 });
         alertdialog.create();
         alertdialog.show();
-
-
-
-
     }
 
     public void onEditFood(View v) {
@@ -189,4 +185,73 @@ public class MainActivity extends AppCompatActivity {
             //go to Food table with ID, get name, brand, serving size, calories
         startActivity(intent);
     }
+
+    public void onResume(){
+        super.onResume();
+        //use Async Task
+        LoadDB task = new LoadDB();
+        task.execute();
+    }
+
+    private final class LoadDB extends AsyncTask<String, Void, Cursor> {
+
+        // runs on the UI thread
+        @Override protected void onPostExecute(Cursor data) {
+            adapter = new SimpleCursorAdapter(getApplicationContext(),
+                    android.R.layout.simple_list_item_1,
+                    data,
+                    new String[] { "name" },
+                    new int[] {android.R.id.text1},0);
+            c = data;
+            foodList.setAdapter(adapter);
+        }
+        // runs on its own thread
+        @Override
+        protected Cursor doInBackground(String... args) {
+            db = dbHelper.getWritableDatabase();
+
+            String MY_QUERY = "SELECT * FROM tblFoods a INNER JOIN tblLoggedFoods b ON a._id=b.foodID WHERE monthID = " + curMonth  + " AND dayOFMonth = " + curDay + " AND year = " + curYear;
+            return db.rawQuery(MY_QUERY, new String[]{});
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == ACTIVITY_RESULT && resultCode != Activity.RESULT_CANCELED) {
+
+            String fName = data.getExtras().getString(F_NAME);
+            String fBrand = data.getExtras().getString(F_BRAND);
+            int fCal = data.getExtras().getInt(F_CAL);
+            String fServing = data.getExtras().getString(F_SERVING);
+            int mealType = data.getExtras().getInt(MEALTYPE, BREAKFAST);
+            String mNotes = data.getExtras().getString(NOTES);
+            int mDay = data.getExtras().getInt(DAYOFMONTH, 0);
+            int mMonth = data.getExtras().getInt(MONTH_ID, 0);
+            String year = Integer.toString(data.getExtras().getInt(YEAR));
+
+            if(data.getExtras().getInt("requestType") == MainActivity.ADD){
+                ContentValues values = new ContentValues();
+                values.put(MainActivity.F_NAME, fName);
+                values.put(MainActivity.F_BRAND, fBrand);
+                values.put(MainActivity.F_CAL, fCal);
+                values.put(MainActivity.F_SERVING, fServing);
+                long foodId = db.insert(MainActivity.TABLE_FOOD, null, values);
+
+
+                values.clear();
+                values.put(MainActivity.FOOD_ID, (int)foodId);
+                values.put(MainActivity.MONTH_ID, mMonth);
+                values.put(MainActivity.DAYOFMONTH, mDay);
+                values.put(MainActivity.YEAR, year);
+                values.put(MainActivity.MEALTYPE, mealType);
+                values.put(MainActivity.NOTES, mNotes);
+                db.insert(MainActivity.TABLE_LOGGED, null, values);
+
+            }
+
+        }
+
+    }
+
 }
