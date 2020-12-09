@@ -21,25 +21,31 @@ public class NewAppWidget extends AppWidgetProvider {
 
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
-        String calorie_amount="";
+        String calorie_amount="0";
         DatabaseOpenHelper dbHelper= new DatabaseOpenHelper(context);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        long millis=System.currentTimeMillis();
-        java.util.Date date=new java.util.Date(millis);
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("America/New_York"));
-        cal.setTime(date);
-        int year = cal.get(Calendar.YEAR);
-        int month = cal.get(Calendar.MONTH);
-        int day = cal.get(Calendar.DAY_OF_MONTH);
-        String query="select sum(F_CAL) from tblFood NATURAL JOIN tblLoggedFood where YEAR='"+year+"' AND MONTH_ID='"+month+"' AND DAYOFMONTH='"+day+"'";
-        Cursor cursor = db.rawQuery(query , null) ;
-        if (cursor.moveToFirst()) {
-            calorie_amount = cursor.getString(0);
+        Calendar rightNow = Calendar.getInstance();
+        int day = rightNow.get(Calendar.DAY_OF_MONTH);
+        int month = rightNow.get(Calendar.MONTH) + 1;
+        int year = rightNow.get(Calendar.YEAR);
+        String query="select sum(calories) as daily_calories from tblFoods NATURAL JOIN tblLoggedFoods where year=? AND monthid=? AND dayOfMonth=?";
+        String[] selectionArgs={Integer.toString(year),Integer.toString(month),Integer.toString(day)};
+        Cursor cursor = db.rawQuery(query ,selectionArgs) ;
+        if(cursor==null || cursor.getCount()==0){
+            calorie_amount="0";
+        }
+        else {
+            if (cursor.moveToFirst()) {
+                calorie_amount = cursor.getString(cursor.getColumnIndex("daily_calories"));
+            } else {
+                calorie_amount = "0";
+            }
         }
         cursor.close();
-        CharSequence widgetText = context.getString(R.string.appwidget_text);
+        db.close();
         // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.new_app_widget);
+        views.setTextViewText(R.id.calorie_label,"Daily Calorie Count for "+Integer.toString(month)+"/"+Integer.toString(day)+"/"+Integer.toString(year)+":");
         views.setTextViewText(R.id.calorie_number, calorie_amount);
 
         // Instruct the widget manager to update the widget
