@@ -37,17 +37,18 @@ public class NewAppWidget extends AppWidgetProvider {
         else {
             if (cursor.moveToFirst()) {
                 calorie_amount = cursor.getString(cursor.getColumnIndex("daily_calories"));
-            } else {
-                calorie_amount = "0";
+                if(calorie_amount==null){
+                    calorie_amount="0";
+                }
             }
         }
+        System.out.println("Calorie Amount:"+calorie_amount);
         cursor.close();
         db.close();
         // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.new_app_widget);
-        views.setTextViewText(R.id.calorie_label,"Daily Calorie Count for "+Integer.toString(month)+"/"+Integer.toString(day)+"/"+Integer.toString(year)+":");
-        views.setTextViewText(R.id.calorie_number, calorie_amount);
-
+        views.setTextViewText(R.id.calorie_label,"Calorie Count for "+Integer.toString(month)+"/"+Integer.toString(day)+"/"+Integer.toString(year)+":"+calorie_amount);
+        System.out.println("Calorie Amount Check:"+calorie_amount);
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);
     }
