@@ -13,20 +13,6 @@
         android:layout_margin="8dp"
         android:background="#09C"
         android:contentDescription="Daily Calorie Label"
-        android:text="Daily Calorie Count:"
         android:textColor="#ffffff"
         android:textSize="24sp"/>
-    <TextView
-        android:id="@+id/calorie_number"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:layout_toRightOf="@id/calorie_label"
-        android:layout_margin="8dp"
-        android:background="#09C"
-        android:contentDescription="Daily Calorie Number"
-        android:text="0"
-        android:textColor="#ffffff"
-        android:textSize="24sp" />
 </RelativeLayout>
