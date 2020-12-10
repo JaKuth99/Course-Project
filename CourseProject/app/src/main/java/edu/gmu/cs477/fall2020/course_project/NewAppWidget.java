@@ -42,13 +42,11 @@ public class NewAppWidget extends AppWidgetProvider {
                 }
             }
         }
-        System.out.println("Calorie Amount:"+calorie_amount);
         cursor.close();
         db.close();
         // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.new_app_widget);
         views.setTextViewText(R.id.calorie_label,"Calorie Count for "+Integer.toString(month)+"/"+Integer.toString(day)+"/"+Integer.toString(year)+":"+calorie_amount);
-        System.out.println("Calorie Amount Check:"+calorie_amount);
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);
     }
