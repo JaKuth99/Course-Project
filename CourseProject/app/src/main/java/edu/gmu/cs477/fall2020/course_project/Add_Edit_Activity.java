@@ -2,16 +2,21 @@ package edu.gmu.cs477.fall2020.course_project;
 
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,6 +47,9 @@ public class Add_Edit_Activity extends AppCompatActivity {
     private Button btnEditDate;
     private Button btnCreate_Save;
     private int requestType;
+    private ImageView display_img; //for displaying the image
+    //private Button camera_open; //for opening the camera
+    static final int REQUEST_IMAGE_CAPTURE = 1;
 
     int currentFoodID;
 
@@ -98,6 +106,15 @@ public class Add_Edit_Activity extends AppCompatActivity {
         txtCheckPrompt = (TextView) findViewById(R.id.txtCheckPrompt);
         checked = (CheckBox) findViewById(R.id.checkbox);
         checked.setChecked(false);
+
+        //camera_open = (Button) findViewById(R.id.takePicture); //getting component by ID
+        display_img = (ImageView) findViewById(R.id.imageView); //getting component by ID
+
+        //camera_open button opens the camera; added the setOnClickListener in this button
+        display_img.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) { open(); }
+        });
 
         Calendar cal = Calendar.getInstance();
         int year = cal.get(Calendar.YEAR);
@@ -300,8 +317,6 @@ public class Add_Edit_Activity extends AppCompatActivity {
             }
 
 
-
-
             }
 
             public void setChangeAll(int ans) {
@@ -309,7 +324,21 @@ public class Add_Edit_Activity extends AppCompatActivity {
 
             }
 
+    //this method will retrieves the image taken with the camera
+    @Override
+    @SuppressLint("MissingSuperCall")
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Bitmap bp = (Bitmap) data.getExtras().get("data");
+        display_img.setImageBitmap(bp);
+    }
 
+    public void open() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
+    }
 
     }
 
