@@ -58,7 +58,16 @@ public class Add_Edit_Activity extends AppCompatActivity {
     RadioButton rbDinner;
     RadioButton rbSnack;
 
-    boolean hasBeenChanged = false;
+    int changeAll = 2; //default to 2 - change a single entry
+
+    String orgfName;
+    String orgfBrand;
+    String orgfCals;
+    String orgfServing;
+
+    int selectedLogEntryId;
+
+    CheckBox checked;
 
     private DatePickerDialog.OnDateSetListener mDateSetListener;
     @Override
@@ -82,6 +91,8 @@ public class Add_Edit_Activity extends AppCompatActivity {
         rbDinner= (RadioButton) findViewById(R.id.rbDinner);
         rbSnack = (RadioButton) findViewById(R.id.rbSnack);
 
+        checked = (CheckBox) findViewById(R.id.checkbox);
+        checked.setChecked(false);
 
         Calendar cal = Calendar.getInstance();
         int year = cal.get(Calendar.YEAR);
@@ -101,6 +112,7 @@ public class Add_Edit_Activity extends AppCompatActivity {
             title.setText("Edit Food Item");
             currentFoodID = intent.getExtras().getInt(_ID, -1);
             if(currentFoodID != -1) {
+                selectedLogEntryId = intent.getExtras().getInt(LOGGED_ID);
                 String fName = intent.getExtras().getString(F_NAME);
                 String fBrand = intent.getExtras().getString(F_BRAND);
                 String fCal = intent.getExtras().getString(F_CAL);
@@ -200,7 +212,6 @@ public class Add_Edit_Activity extends AppCompatActivity {
     }
 
     public void onSave(View v){
-        if(requestType == MainActivity.ADD) {
             String fName = inputName.getText() != null ? inputName.getText().toString() : "";
             if (fName.equals("")) {
                 //show error message
@@ -214,8 +225,9 @@ public class Add_Edit_Activity extends AppCompatActivity {
             String fServing = inputServings.getText().toString();
             String mNotes = inputNotes.getText().toString();
 
-
             Intent intent = new Intent();
+            intent.putExtra(LOGGED_ID, selectedLogEntryId);
+            intent.putExtra(_ID, currentFoodID);
             intent.putExtra(F_NAME, fName);
             intent.putExtra(F_BRAND, fBrand);
             intent.putExtra(F_CAL, fCalories);
@@ -227,18 +239,48 @@ public class Add_Edit_Activity extends AppCompatActivity {
             intent.putExtra(YEAR, selectedYear);
 
             if (requestType == MainActivity.ADD) {
+
                 //call addExercise
                 intent.putExtra("requestType", MainActivity.ADD);
+                setResult(Activity.RESULT_OK, intent);
+                finish();
                 //add check here that no duplicate names and that
             } else {
+
+                setChangeAll(MainActivity.CHANGE_SINGE_ENTRY);
                 //update entry
+                if (!fName.equals(orgfName) || !fBrand.equals(orgfBrand) || !(fCalories == Integer.parseInt(orgfCals)) || !fServing.equals(orgfServing)) {
+                    //prompt
+                    if (checked.isChecked()){
+                        setChangeAll(MainActivity.CHANGE_ALL_ENTRIES);
+                    }else{
+                        setChangeAll(MainActivity.CHANGE_SINGE_ENTRY);
+                    }
+
+
+
+                }
+                intent.putExtra("updateSettings", changeAll);
                 intent.putExtra("requestType", MainActivity.EDIT);
+                setResult(Activity.RESULT_OK, intent);
+                finish();
+
+
+
+
             }
 
-            setResult(Activity.RESULT_OK, intent);
-            finish();
-        }
+
+
+
+            }
+
+            public void setChangeAll(int ans) {
+                changeAll = ans;
+
+            }
+
+
 
     }
 
-}
