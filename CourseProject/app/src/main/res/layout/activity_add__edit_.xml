@@ -32,7 +32,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="456dp"
+            android:layout_height="469dp"
             android:background="#FDFDFD"
             android:orientation="vertical">
 
@@ -172,8 +172,8 @@
                     android:id="@+id/rbBreakfast"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:onClick="onRadioButtonClicked"
                     android:checked="true"
+                    android:onClick="onRadioButtonClicked"
                     android:text="Breakfast" />
 
                 <RadioButton
@@ -196,6 +196,7 @@
                     android:layout_height="wrap_content"
                     android:onClick="onRadioButtonClicked"
                     android:text="Snack" />
+
             </RadioGroup>
 
             <LinearLayout
@@ -219,6 +220,27 @@
                     android:layout_weight="1"
                     android:ems="10"
                     android:inputType="textMultiLine" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="187dp"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/txtCheckPrompt"
+                    android:layout_width="119dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ems="10"
+                    android:text="Edit food for all entries?" />
+
+                <CheckBox
+                    android:id="@+id/checkbox"
+                    android:layout_width="5dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
             </LinearLayout>
         </LinearLayout>
 
