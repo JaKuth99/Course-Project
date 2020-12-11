@@ -162,6 +162,25 @@ public class MainActivity extends AppCompatActivity {
 
             };
         });
+        foodList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                //get item name that was clicked
+                Cursor q = (Cursor) parent.getAdapter().getItem(position);
+                int loggedId = q.getInt(q.getColumnIndex(LOGGED_ID));
+
+                //get database
+                db = dbHelper.getWritableDatabase();
+
+                //delete foodLogged entry
+                db.delete(MainActivity.TABLE_LOGGED,LOGGED_ID + " =?", new String[]{String.valueOf(loggedId)});
+
+                String MY_QUERY = "SELECT * FROM tblFoods a INNER JOIN tblLoggedFoods b ON a._id=b.foodID WHERE monthID = " + curMonth  + " AND dayOFMonth = " + curDay + " AND year = " + curYear;
+                c = db.rawQuery(MY_QUERY, new String[]{});
+                adapter.swapCursor(c);
+                txtTotalCals.setText("Total Calories: " + getCalories());
+                return true;
+            }
+        });
 
     }
 
@@ -223,6 +242,8 @@ public class MainActivity extends AppCompatActivity {
         //use Async Task
         LoadDB task = new LoadDB();
         task.execute();
+        txtTotalCals.setText("Total Calories: " + getCalories());
+
     }
 
     private final class LoadDB extends AsyncTask<String, Void, Cursor> {
@@ -330,6 +351,10 @@ public class MainActivity extends AppCompatActivity {
 
                 }
             }
+            LoadDB task = new LoadDB();
+            task.execute();
+            txtTotalCals.setText("Total Calories: " + getCalories());
+
 
         }
 
