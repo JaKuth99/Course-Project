@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Checkbox;
 
 import java.util.Calendar;
 
@@ -31,6 +32,7 @@ import static edu.gmu.cs477.fall2020.course_project.MainActivity.NOTES;
 import static edu.gmu.cs477.fall2020.course_project.MainActivity.SNACK;
 import static edu.gmu.cs477.fall2020.course_project.MainActivity.YEAR;
 import static edu.gmu.cs477.fall2020.course_project.MainActivity._ID;
+import static edu.gmu.cs477.fall2020.course_project.MainActivity.LOGGED_ID;
 
 public class Add_Edit_Activity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
