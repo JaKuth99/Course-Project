@@ -28,9 +28,8 @@ public class NewAppWidget extends AppWidgetProvider {
         int day = rightNow.get(Calendar.DAY_OF_MONTH);
         int month = rightNow.get(Calendar.MONTH) + 1;
         int year = rightNow.get(Calendar.YEAR);
-        String query="select sum(calories) as daily_calories from tblFoods NATURAL JOIN tblLoggedFoods where year=? AND monthid=? AND dayOfMonth=?";
-        String[] selectionArgs={Integer.toString(year),Integer.toString(month),Integer.toString(day)};
-        Cursor cursor = db.rawQuery(query ,selectionArgs) ;
+        String MY_QUERY = "SELECT sum(calories) as daily_calories FROM tblFoods a INNER JOIN tblLoggedFoods b ON a._id=b.foodID WHERE monthID = " + month  + " AND dayOFMonth = " + day + " AND year = " + year;
+        Cursor cursor = db.rawQuery(MY_QUERY, new String[]{});
         if(cursor==null || cursor.getCount()==0){
             calorie_amount="0";
         }
