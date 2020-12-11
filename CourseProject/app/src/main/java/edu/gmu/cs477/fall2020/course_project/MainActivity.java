@@ -57,9 +57,7 @@ public class MainActivity extends AppCompatActivity {
     private ListView foodList;
     SimpleCursorAdapter adapter;
 
-    private ListView allFoods;
-    SimpleCursorAdapter allFoodAdapter;
-    Cursor alertCursor;
+    //removed some stuff here
 
     protected SQLiteDatabase db = null;
     DatabaseOpenHelper dbHelper = null;
@@ -191,15 +189,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void onEditFood(View v) {
-        Intent intent = new Intent(this, Add_Edit_Activity.class);
-        intent.putExtra(REQUEST_TYPE, EDIT);
-        //send data associated with the entry that should be edited
-            //go to FoodLogged -> get meal type and date and notes and food ID
-            //go to Food table with ID, get name, brand, serving size, calories
-        startActivity(intent);
-    }
-
     public void onResume(){
         super.onResume();
         //use Async Task
@@ -242,7 +231,9 @@ public class MainActivity extends AppCompatActivity {
             String logID = String.valueOf(selectedLogEntryId);
             int selectedFoodId = data.getExtras().getInt(_ID);
             String foodID = String.valueOf(selectedFoodId);
-            int mealType = data.getExtras().getInt(MEALTYPE, BREAKFAST);
+            //this was changed
+            int mealType = data.getExtras().getInt(MEALTYPE);
+            System.out.println("we got this meal type after save: " + mealType);
             String mNotes = data.getExtras().getString(NOTES);
             int mDay = data.getExtras().getInt(DAYOFMONTH, 0);
             int mMonth = data.getExtras().getInt(MONTH_ID, 0);
