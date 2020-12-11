@@ -30,6 +30,7 @@ import android.app.AlertDialog;
 
 public class MainActivity extends AppCompatActivity {
     TextView txtDisplayDate;
+    TextView txtTotalCals;
     CalendarView calendar;
     int curDay;
     int curMonth;
@@ -63,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     DatabaseOpenHelper dbHelper = null;
     Cursor c;
 
+
     final static String TABLE_FOOD = "tblFoods";
     final static String F_NAME=  "name";
     final static String _ID = "_id";
@@ -91,6 +93,8 @@ public class MainActivity extends AppCompatActivity {
 
 
         txtDisplayDate = (TextView)(findViewById(R.id.txtDisplayDate));
+        txtTotalCals = (TextView) (findViewById(R.id.txtTotalCals));
+        dbHelper = new DatabaseOpenHelper(this);
 
         //get the current date to display
         Calendar rightNow = Calendar.getInstance();
@@ -99,7 +103,9 @@ public class MainActivity extends AppCompatActivity {
         curYear = rightNow.get(Calendar.YEAR);
         String currentDate = curMonth + "/" + curDay + "/" + curYear;
 
+
         txtDisplayDate.setText("Food Logged for " + currentDate);
+        txtTotalCals.setText("Total Calories: " + getCalories());
 
         calendar = (CalendarView)(findViewById(R.id.calendarView));
         calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
@@ -109,14 +115,16 @@ public class MainActivity extends AppCompatActivity {
                 curYear = year;
                 curMonth = month + 1;
                 curDay = dayOfMonth;
+
                 txtDisplayDate.setText("Food Logged for " + curMonth + "/" + curDay + "/" + curYear);
+                txtTotalCals.setText("Total Calories: " + getCalories());
 
                 LoadDB task = new LoadDB();
                 task.execute();
             }
         });
 
-        dbHelper = new DatabaseOpenHelper(this);
+
 
         foodList = (ListView) findViewById(R.id.allFoodList);
 
@@ -155,6 +163,27 @@ public class MainActivity extends AppCompatActivity {
             };
         });
 
+    }
+
+    public String getCalories(){
+        db = dbHelper.getWritableDatabase();
+        String calorie_amount ="";
+        String MY_QUERY = "SELECT sum(calories) as daily_calories FROM tblFoods a INNER JOIN tblLoggedFoods b ON a._id=b.foodID WHERE monthID = " + curMonth  + " AND dayOFMonth = " + curDay + " AND year = " + curYear;
+        Cursor cursor = db.rawQuery(MY_QUERY, new String[]{});
+        if(cursor==null || cursor.getCount()==0){
+            calorie_amount="0";
+        }
+        else {
+            if (cursor.moveToFirst()) {
+                calorie_amount = cursor.getString(cursor.getColumnIndex("daily_calories"));
+                if(calorie_amount==null){
+                    calorie_amount="0";
+                }
+            }
+        }
+        cursor.close();
+
+        return calorie_amount;
     }
 
     public void onAddNew(View v){//go to new food page
