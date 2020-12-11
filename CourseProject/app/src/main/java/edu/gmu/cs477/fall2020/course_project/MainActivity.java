@@ -176,58 +176,20 @@ public class MainActivity extends AppCompatActivity {
                         startActivityForResult(intent, ACTIVITY_RESULT);
                     }
                 })
-                .setPositiveButton("Search", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Quick Add", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-        alertdialog.create();
-        alertdialog.show();
-    }
-    /*
-    public void onSearch(View v){
-        LayoutInflater layoutInflater = LayoutInflater.from(MainActivity.this);
-        View promptView = layoutInflater.inflate(R.layout.prompt_on_add, null);
-        AlertDialog.Builder alertdialog = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialog);
-        alertdialog.setView(promptView);
-        alertdialog.setTitle("Select Event");
-        alertdialog.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-
-            }
-        });
-
-        SearchView SearchET = (SearchView) alertdialog.findViewById(R.id.SearchET);
-        LinearLayout layoutLinearLayout = (LinearLayout) alertdialog.findViewById(R.id.layoutLinearLayout);
-
-        ListView lv = (ListView) alertdialog.findViewById(R.id.Contacts_list_view);
-
-        alertdialog.setView(promptView);
-        alertdialog.setCancelable(true)
-                .setNegativeButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent(MainActivity.this, Add_Edit_Activity.class);
-                        intent.putExtra(REQUEST_TYPE, ADD);
+                        Intent intent = new Intent(MainActivity.this, Quick_Add_List_Activity.class);
                         intent.putExtra(SELECTED_DAY, curDay);
                         intent.putExtra(SELECTED_YEAR, curYear);
                         intent.putExtra(SELECTED_MONTH, curMonth);
                         startActivityForResult(intent, ACTIVITY_RESULT);
                     }
-                })
-                .setPositiveButton("CANCEL", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
                 });
         alertdialog.create();
         alertdialog.show();
     }
 
-     */
 
     public void onEditFood(View v) {
         Intent intent = new Intent(this, Add_Edit_Activity.class);
