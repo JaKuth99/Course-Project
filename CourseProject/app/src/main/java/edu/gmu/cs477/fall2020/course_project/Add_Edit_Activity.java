@@ -14,7 +14,7 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Checkbox;
+import android.widget.CheckBox;
 
 import java.util.Calendar;
 
