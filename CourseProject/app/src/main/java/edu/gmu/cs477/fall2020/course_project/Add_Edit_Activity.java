@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RadioButton;
@@ -70,6 +71,7 @@ public class Add_Edit_Activity extends AppCompatActivity {
     int selectedLogEntryId;
 
     CheckBox checked;
+    TextView txtCheckPrompt;
 
     private DatePickerDialog.OnDateSetListener mDateSetListener;
     @Override
@@ -92,7 +94,8 @@ public class Add_Edit_Activity extends AppCompatActivity {
         rbLunch = (RadioButton) findViewById(R.id.rbLunch);
         rbDinner= (RadioButton) findViewById(R.id.rbDinner);
         rbSnack = (RadioButton) findViewById(R.id.rbSnack);
-
+        //this was added
+        txtCheckPrompt = (TextView) findViewById(R.id.txtCheckPrompt);
         checked = (CheckBox) findViewById(R.id.checkbox);
         checked.setChecked(false);
 
@@ -106,21 +109,35 @@ public class Add_Edit_Activity extends AppCompatActivity {
         selectedDay = intent.getIntExtra(MainActivity.SELECTED_DAY, day);
         selectedMonth = intent.getIntExtra(MainActivity.SELECTED_MONTH, month);
         selectedYear = intent.getIntExtra(MainActivity.SELECTED_YEAR, year);
+        //put the page in create mode
         btnCreate_Save.setText("CREATE");
         title.setText("Add New");
+        //user does not need to see this since it pertains to edit
+        txtCheckPrompt.setVisibility(View.GONE);
+        checked.setVisibility(View.GONE);
+
         mDisplayDate.setText(selectedMonth + "/" + selectedDay + "/" + selectedYear);
         if (requestType == MainActivity.EDIT){
-            btnCreate_Save.setText("SAVE");
+            //put page in edit mode
+            btnCreate_Save.setText("SAVE CHANGES");
             title.setText("Edit Food Item");
+            txtCheckPrompt.setVisibility(View.VISIBLE);
+            checked.setVisibility(View.VISIBLE);
+
             currentFoodID = intent.getExtras().getInt(_ID, -1);
             if(currentFoodID != -1) {
                 selectedLogEntryId = intent.getExtras().getInt(LOGGED_ID);
                 String fName = intent.getExtras().getString(F_NAME);
+                orgfName = fName;
                 String fBrand = intent.getExtras().getString(F_BRAND);
+                orgfBrand = fBrand;
                 String fCal = intent.getExtras().getString(F_CAL);
+                orgfCals = fCal;
                 String fServings = intent.getExtras().getString(F_SERVING);
-                int mealType = intent.getExtras().getInt(MEALTYPE);
-                System.out.println("we got this meal type: " + mealType);
+                orgfServing = fServings;
+                //this was changed
+                selectedMealType = intent.getExtras().getInt(MEALTYPE);
+                System.out.println("we got this meal type: " + selectedMealType);
                 String mNotes = intent.getExtras().getString(NOTES);
                 //set the edit texts
                 inputName.setText(fName);
@@ -129,7 +146,7 @@ public class Add_Edit_Activity extends AppCompatActivity {
                 inputServings.setText(fServings);
                 inputNotes.setText(mNotes);
 
-                switch (mealType) {
+                switch (selectedMealType) {
                     case BREAKFAST:
                         rbBreakfast.setChecked(true);
                         break;
@@ -162,6 +179,10 @@ public class Add_Edit_Activity extends AppCompatActivity {
 
                 String date = month  + "/" + day + "/" + year;
                 mDisplayDate.setText(date);
+                //this was added
+                selectedDay = day;
+                selectedMonth = month;
+                selectedYear = year;
             }
         };
     }
@@ -249,9 +270,15 @@ public class Add_Edit_Activity extends AppCompatActivity {
                 //add check here that no duplicate names and that
             } else {
 
-                setChangeAll(MainActivity.CHANGE_SINGE_ENTRY);
+                setChangeAll(MainActivity.CHANGE_ALL_ENTRIES);
                 //update entry
                 if (!fName.equals(orgfName) || !fBrand.equals(orgfBrand) || !(fCalories == Integer.parseInt(orgfCals)) || !fServing.equals(orgfServing)) {
+                    System.out.println("fName: " + fName + " != " + orgfName);
+                    System.out.println("fBrand: " + fBrand + " != " + orgfBrand);
+                    System.out.println("fCalories: " + fCalories + " != " + orgfCals);
+                    System.out.println("fServing: " + fServing + " != " + orgfServing);
+
+                    System.out.println("changed");
                     //prompt
                     if (checked.isChecked()){
                         setChangeAll(MainActivity.CHANGE_ALL_ENTRIES);
