@@ -129,6 +129,10 @@ public class Quick_Add_List_Activity extends AppCompatActivity {
 
                 String date = month  + "/" + day + "/" + year;
                 mDisplayDate.setText(date);
+                //this was added
+                selectedDay = day;
+                selectedMonth = month;
+                selectedYear = year;
             }
         };
     }
