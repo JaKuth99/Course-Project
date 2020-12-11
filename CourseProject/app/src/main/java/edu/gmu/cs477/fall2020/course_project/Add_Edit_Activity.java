@@ -36,7 +36,7 @@ import static edu.gmu.cs477.fall2020.course_project.MainActivity._ID;
 import static edu.gmu.cs477.fall2020.course_project.MainActivity.LOGGED_ID;
 
 public class Add_Edit_Activity extends AppCompatActivity {
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "Add_Edit_Activity";
     private TextView mDisplayDate;
     private TextView title;
     private Button btnEditDate;
