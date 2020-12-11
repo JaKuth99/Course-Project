@@ -1,7 +1,5 @@
 package edu.gmu.cs477.fall2020.course_project;
 
-package edu.gmu.cs477.courseproject;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
@@ -19,9 +17,11 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CalendarView;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
+import android.widget.SearchView;
 import java.util.Calendar;
 import java.util.List;
 
@@ -42,6 +42,9 @@ public class MainActivity extends AppCompatActivity {
     public final static int ADD = 0;
     public final static int EDIT = 1;
 
+    public final static int CHANGE_ALL_ENTRIES = 1;
+    public final static int CHANGE_SINGE_ENTRY = 2;
+
     public final static int BREAKFAST = 1;
     public final static int LUNCH = 2;
     public final static int DINNER = 3;
@@ -53,6 +56,10 @@ public class MainActivity extends AppCompatActivity {
 
     private ListView foodList;
     SimpleCursorAdapter adapter;
+
+    private ListView allFoods;
+    SimpleCursorAdapter allFoodAdapter;
+    Cursor alertCursor;
 
     protected SQLiteDatabase db = null;
     DatabaseOpenHelper dbHelper = null;
@@ -123,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
                 //get cursor for position
                 Cursor q = (Cursor) parent.getAdapter().getItem(position);
                 int fId = q.getInt(q.getColumnIndex(_ID));
+                int loggedId = q.getInt(q.getColumnIndex(LOGGED_ID));
                 String fName = q.getString(q.getColumnIndex(F_NAME));
                 String fBrand = q.getString(q.getColumnIndex(F_BRAND));
                 String fCal = q.getString(q.getColumnIndex(F_CAL));
@@ -132,6 +140,7 @@ public class MainActivity extends AppCompatActivity {
 
                 Intent intent = new Intent(getApplicationContext(), Add_Edit_Activity.class);
                 intent.putExtra(_ID,fId);
+                intent.putExtra(LOGGED_ID,loggedId);
                 intent.putExtra(F_NAME, fName);
                 intent.putExtra(F_BRAND, fBrand);
                 intent.putExtra(F_CAL, fCal);
@@ -153,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
     public void onAddNew(View v){//go to new food page
         LayoutInflater layoutInflater = LayoutInflater.from(MainActivity.this);
         View promptView = layoutInflater.inflate(R.layout.prompt_on_add, null);
-        AlertDialog.Builder alertdialog =new AlertDialog.Builder(MainActivity.this, R.style.AlertDialog);
+        AlertDialog.Builder alertdialog = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialog);
         alertdialog.setView(promptView);
         alertdialog.setCancelable(true)
                 .setNegativeButton("Create New Entry", new DialogInterface.OnClickListener() {
@@ -176,6 +185,49 @@ public class MainActivity extends AppCompatActivity {
         alertdialog.create();
         alertdialog.show();
     }
+    /*
+    public void onSearch(View v){
+        LayoutInflater layoutInflater = LayoutInflater.from(MainActivity.this);
+        View promptView = layoutInflater.inflate(R.layout.prompt_on_add, null);
+        AlertDialog.Builder alertdialog = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialog);
+        alertdialog.setView(promptView);
+        alertdialog.setTitle("Select Event");
+        alertdialog.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+
+        SearchView SearchET = (SearchView) alertdialog.findViewById(R.id.SearchET);
+        LinearLayout layoutLinearLayout = (LinearLayout) alertdialog.findViewById(R.id.layoutLinearLayout);
+
+        ListView lv = (ListView) alertdialog.findViewById(R.id.Contacts_list_view);
+
+        alertdialog.setView(promptView);
+        alertdialog.setCancelable(true)
+                .setNegativeButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent = new Intent(MainActivity.this, Add_Edit_Activity.class);
+                        intent.putExtra(REQUEST_TYPE, ADD);
+                        intent.putExtra(SELECTED_DAY, curDay);
+                        intent.putExtra(SELECTED_YEAR, curYear);
+                        intent.putExtra(SELECTED_MONTH, curMonth);
+                        startActivityForResult(intent, ACTIVITY_RESULT);
+                    }
+                })
+                .setPositiveButton("CANCEL", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+        alertdialog.create();
+        alertdialog.show();
+    }
+
+     */
 
     public void onEditFood(View v) {
         Intent intent = new Intent(this, Add_Edit_Activity.class);
@@ -224,11 +276,16 @@ public class MainActivity extends AppCompatActivity {
             String fBrand = data.getExtras().getString(F_BRAND);
             int fCal = data.getExtras().getInt(F_CAL);
             String fServing = data.getExtras().getString(F_SERVING);
+            int selectedLogEntryId = data.getExtras().getInt(LOGGED_ID);
+            String logID = String.valueOf(selectedLogEntryId);
+            int selectedFoodId = data.getExtras().getInt(_ID);
+            String foodID = String.valueOf(selectedFoodId);
             int mealType = data.getExtras().getInt(MEALTYPE, BREAKFAST);
             String mNotes = data.getExtras().getString(NOTES);
             int mDay = data.getExtras().getInt(DAYOFMONTH, 0);
             int mMonth = data.getExtras().getInt(MONTH_ID, 0);
             String year = Integer.toString(data.getExtras().getInt(YEAR));
+
 
             if(data.getExtras().getInt("requestType") == MainActivity.ADD){
                 ContentValues values = new ContentValues();
@@ -248,6 +305,48 @@ public class MainActivity extends AppCompatActivity {
                 values.put(MainActivity.NOTES, mNotes);
                 db.insert(MainActivity.TABLE_LOGGED, null, values);
 
+            }else if (data.getExtras().getInt("requestType") == MainActivity.EDIT){
+                if(data.getExtras().getInt("updateSettings") == MainActivity.CHANGE_SINGE_ENTRY){
+                    //create new entry for that food
+                    ContentValues values = new ContentValues();
+                    values.put(MainActivity.F_NAME, fName);
+                    values.put(MainActivity.F_BRAND, fBrand);
+                    values.put(MainActivity.F_CAL, fCal);
+                    values.put(MainActivity.F_SERVING, fServing);
+                    long foodId = db.insert(MainActivity.TABLE_FOOD, null, values);
+
+                    //delete foodLogged entry
+                    db.delete(MainActivity.TABLE_LOGGED,LOGGED_ID + " =?", new String[]{logID});
+                    //create new one with
+                    values.clear();
+                    values.put(MainActivity.FOOD_ID, (int)foodId);
+                    values.put(MainActivity.MONTH_ID, mMonth);
+                    values.put(MainActivity.DAYOFMONTH, mDay);
+                    values.put(MainActivity.YEAR, year);
+                    values.put(MainActivity.MEALTYPE, mealType);
+                    values.put(MainActivity.NOTES, mNotes);
+                    db.insert(MainActivity.TABLE_LOGGED, null, values);
+
+                }else if (data.getExtras().getInt("updateSettings") == MainActivity.CHANGE_ALL_ENTRIES){
+                    //update foodTable with new data
+                    ContentValues cv = new ContentValues();
+                    cv.put(MainActivity.F_NAME, fName);
+                    cv.put(MainActivity.F_BRAND, fBrand);
+                    cv.put(MainActivity.F_CAL, fCal);
+                    cv.put(MainActivity.F_SERVING, fServing);
+
+                    db.update(MainActivity.TABLE_FOOD, cv, _ID + " =?", new String[]{foodID});
+
+                    cv.clear();
+                    cv.put(MainActivity.MONTH_ID, mMonth);
+                    cv.put(MainActivity.DAYOFMONTH, mDay);
+                    cv.put(MainActivity.YEAR, year);
+                    cv.put(MainActivity.MEALTYPE, mealType);
+                    cv.put(MainActivity.NOTES, mNotes);
+                    //update loggedTable with any data
+                    db.update(MainActivity.TABLE_LOGGED, cv, LOGGED_ID + " =?", new String[]{logID});
+
+                }
             }
 
         }
